@@ -1,0 +1,198 @@
+package main_package;
+
+import java.awt.*;
+import java.awt.event.*;
+import java.sql.*;
+
+import javax.swing.*;
+import javax.swing.border.*;
+
+
+public class main_program extends JFrame implements ActionListener, ItemListener
+{
+	private static final long serialVersionUID = 1L;
+	//DADOS
+		//GUI
+	JPanel norte,sul,painel2;
+	JPanel exame,visualizacao,desempenho;
+	JPanel norte2,sul2,centro;
+	JTabbedPane jtp;
+	GridBagLayout grid;
+	GridBagConstraints cons;
+	JLabel lb;
+	JTextField base_dados,pergunta;
+	JLabel lb_pergunta,lb_area;
+	JTextArea txa_pergunta,txa_visualizacao;
+	JButton[] bt_accoes = new JButton[5];
+	Checkbox[] check = new Checkbox [4];
+	CheckboxGroup grupo;
+	String[] sbt_accoes = {
+		"Começar", "Seguinte", "Responder", "Desempenho", "Sair"	
+	};
+	Font arial1 = new Font("Arial",Font.BOLD,12);
+	Border lineBordergray = new LineBorder(Color.gray,3);
+			//MENU
+	JMenuBar mnb;
+	JMenu mn;
+	JMenuItem novo_jogo,nome_aluno,total_perguntas,nome_ficheiro,imprimir_teste,gravar_teste,ler_teste,sair;
+			//JANELA DIMENSAO
+	Toolkit tlk;
+	Dimension dimensao;
+	int comp=600, alt=600;
+		//VAR
+	String nome=null;
+			//BASE DE DADOS
+	static String drive = "com.mysql.jdbc.Driver";
+	static String username  = "root";
+	static String password  = "";
+	static String str_DB       = "testes";
+	static String url              = "jdbc:mysql://127.0.0.1:3306/"+str_DB;
+	static Connection con = null;
+	public main_program() 
+	{
+		super("Exames de Redes");
+		tlk = getToolkit();
+		dimensao = tlk.getScreenSize();
+		setDefaultCloseOperation(EXIT_ON_CLOSE);
+		//Menubar
+		mnb = new JMenuBar();
+			mn = new JMenu("Opções");
+				novo_jogo = new JMenuItem("Novo Jogo");
+					novo_jogo.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							if (nome==null)
+							{
+								
+							}
+						}
+					});
+				mn.add(novo_jogo);
+				mn.addSeparator();
+				nome_aluno = new JMenuItem("Nome Aluno");
+				mn.add(nome_aluno);
+				total_perguntas = new JMenuItem("Total Perguntas");
+				mn.add(total_perguntas);
+				mn.addSeparator();
+				nome_ficheiro = new JMenuItem("Nome Ficheiro");
+				mn.add(nome_ficheiro);
+				imprimir_teste = new JMenuItem("Imprimir Teste");
+				mn.add(imprimir_teste);
+				mn.addSeparator();
+				gravar_teste = new JMenuItem("Gravar Teste");
+				mn.add(gravar_teste);
+				ler_teste = new JMenuItem("Ler Teste");
+				mn.add(ler_teste);
+				mn.addSeparator();
+				sair = new JMenuItem("Sair");
+				mn.add(sair);
+			mnb.add(mn);
+		setJMenuBar(mnb);
+		//campos
+			//norte
+		norte = new JPanel(new GridLayout(1,4));
+		norte.setBorder(new TitledBorder(lineBordergray,"[Informação]",TitledBorder.LEFT,TitledBorder.TOP,arial1,Color.gray));
+				lb = new JLabel("Base Dados");
+				norte.add(lb);
+				base_dados = new JTextField();
+				norte.add(base_dados);
+				lb = new JLabel("Pergunta");
+				norte.add(lb);
+				pergunta = new JTextField();
+				norte.add(pergunta);
+		add(norte,BorderLayout.NORTH);
+			//centro
+		jtp = new JTabbedPane();
+		jtp.setTabPlacement(1);
+			//Teste
+			exame = new JPanel(new BorderLayout());
+			exame.setBorder(new TitledBorder(lineBordergray,"[Questão]",TitledBorder.LEFT,TitledBorder.TOP,arial1,Color.gray));
+			jtp.addTab("Exame", null, exame, null);
+				painel2 = new JPanel(new BorderLayout());
+					norte2 = new JPanel(new FlowLayout());
+						lb = new JLabel("Pergunta: ");
+						norte2.add(lb);
+						lb_pergunta = new JLabel(" 00 ");
+						norte2.add(lb_pergunta);
+						lb = new JLabel(" Area:");
+						norte2.add(lb);
+						lb_area = new JLabel(" ____ ");
+						norte2.add(lb_area);
+					painel2.add(norte2,BorderLayout.NORTH);
+					centro = new JPanel(new GridLayout(1,1));
+						txa_pergunta = new JTextArea("");
+						txa_pergunta.setEditable(false);
+						txa_pergunta.setLineWrap(true);
+						centro.add(txa_pergunta);
+					painel2.add(centro,BorderLayout.CENTER);
+				exame.add(painel2,BorderLayout.NORTH);
+				sul2 = new JPanel(new GridLayout(4,3,10,10));
+				grupo = new CheckboxGroup();
+					for (int i=0;i<4;i++)
+					{
+						lb = new JLabel(i+1+" - Resposta");
+						sul2.add(lb);
+						txa_pergunta = new JTextArea("ola");
+						txa_pergunta.setEditable(false);
+						sul2.add(txa_pergunta);
+						check[i] = new Checkbox("["+i+"]Selecionar",false,grupo);
+						sul2.add(check[i]);
+					}
+				exame.add(sul2,BorderLayout.CENTER);
+			//visualisacao
+			visualizacao = new JPanel(new BorderLayout());
+			//visualizacao.setBackground(Color.blue);
+			visualizacao.setBorder(new TitledBorder(lineBordergray,"[Teste]",TitledBorder.LEFT,TitledBorder.TOP,arial1,Color.gray));
+			jtp.addTab("Visualização", null, visualizacao, null);
+				centro = new JPanel(new GridLayout(1,1));
+					txa_visualizacao = new JTextArea("");
+					centro.add(txa_visualizacao);
+			visualizacao.add(centro,BorderLayout.CENTER);
+			//desempenho
+			desempenho = new JPanel(new BorderLayout());
+			jtp.addTab("Desempenho", null, desempenho, null);
+				centro = new JPanel(new GridLayout(1,1));
+				centro.setBackground(new Color(200,221,242));
+					lb = new JLabel("desempenho");
+					centro.add(lb);
+			desempenho.add(centro,BorderLayout.CENTER);
+		getContentPane().add(jtp, BorderLayout.CENTER);
+			//sul
+		sul = new JPanel(new FlowLayout());
+		sul.setBorder(new TitledBorder(lineBordergray,"[Acções]",TitledBorder.LEFT,TitledBorder.TOP,arial1,Color.gray));
+			for (int i=0;i<5;i++)
+			{
+				bt_accoes[i] = new JButton(sbt_accoes[i]);
+				sul.add(bt_accoes[i]);
+			}
+		add(sul,BorderLayout.SOUTH);
+		
+		//frame
+		setResizable(true);
+		setBounds(dimensao.width/2-comp/2,dimensao.height/2-alt/2,comp,alt);
+		setVisible(true);
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	public static void main(String[] args) throws SQLException 
+	{
+		try {
+			 Class.forName(drive);
+			 con = DriverManager.getConnection(url,username,password);
+		}catch(ClassNotFoundException e) {e.printStackTrace(); }
+		
+		main_program app = new main_program();
+	}
+
+}
